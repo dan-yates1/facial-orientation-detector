@@ -98,11 +98,10 @@ while True:
 
             looking_straight = is_looking_straight(euler_angles_deg)
 
-            if not looking_straight:
-                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                image = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+            cv2.putText(image, 
+            'Looking straight: {}'.format(looking_straight), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255) if is_looking_straight else (0, 0, 255), 2, cv2.LINE_AA)
 
-            # print("Looking straight:", looking_straight)
+            cv2.imshow('Face Orientation', image)
 
     # Display the image
     cv2.imshow('Face Orientation', image)
