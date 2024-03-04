@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
 import numpy as np
-import transforms3d
 
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False,
@@ -19,23 +18,18 @@ def draw_landmarks(image, landmarks):
 
 
 def compute_orientation(landmarks, image_shape):
-    nose_tip = np.array([landmarks[4].x, landmarks[4].y])
-    left_eye_inner = np.array([landmarks[133].x, landmarks[133].y])
-    right_eye_inner = np.array([landmarks[362].x, landmarks[362].y])
-
-    eye_line = right_eye_inner - left_eye_inner
-    nose_to_eye_line = nose_tip - left_eye_inner
-
-    eye_line_norm = np.linalg.norm(eye_line)
-    nose_to_eye_line_norm = np.linalg.norm(nose_to_eye_line)
-    eye_line_unit = eye_line / eye_line_norm if eye_line_norm else eye_line
-    nose_to_eye_line_unit = nose_to_eye_line / \
-        nose_to_eye_line_norm if nose_to_eye_line_norm else nose_to_eye_line
-
-    dot_product = np.dot(eye_line_unit, nose_to_eye_line_unit)
-    angle = np.arccos(dot_product) * (180.0 / np.pi)
-
-    return abs(angle - 90) < 20
+    nose_tip = landmarks[4]
+    left_eye = landmarks[130]
+    right_eye = landmarks[359]
+    
+    points = np.array([(landmark.x * image_shape[1], landmark.y * image_shape[0]) for landmark in [nose_tip, left_eye, right_eye]])
+    
+    nose_to_left_eye = points[1] - points[0]
+    nose_to_right_eye = points[2] - points[0]
+    
+    angle = np.degrees(np.arctan2(nose_to_right_eye[1] - nose_to_left_eye[1], nose_to_right_eye[0] - nose_to_left_eye[0]))
+    
+    return abs(angle) < 10
 
 
 cap = cv2.VideoCapture(0)
@@ -50,20 +44,21 @@ while cap.isOpened():
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     results = face_mesh.process(image_rgb)
-
+    
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
-            landmark_positions = [(landmark.x, landmark.y, landmark.z)
-                                  for landmark in face_landmarks.landmark]
             draw_landmarks(image, face_landmarks.landmark)
-            looking_straight = compute_orientation(
-                face_landmarks.landmark, image.shape)
-            print("Looking straight:", looking_straight)
-            print("Landmarks:", landmark_positions)
+            
+            looking_straight = compute_orientation(face_landmarks.landmark, image.shape)
+            print(looking_straight)  # True or False based on face orientation.
+            
+            if not looking_straight:
+                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                image = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
     cv2.imshow('MediaPipe Face Mesh', image)
 
-    if cv2.waitKey(5) & 0xFF == 27:
+    if cv2.waitKey(5) & 0xFF == 27:  # Press 'ESC' to exit.
         break
 
 cap.release()

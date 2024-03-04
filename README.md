@@ -12,7 +12,7 @@ What things you need to install the software and how to install them:
 
 - Python 3.9
 - OpenCV
-- Media
+- Mediapipe
 
 #### Setup
 
