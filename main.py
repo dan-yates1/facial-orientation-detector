@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import transforms3d
 
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False,
@@ -10,55 +11,102 @@ face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False,
                                   min_tracking_confidence=0.5)
 
 
-def draw_landmarks(image, landmarks):
-    for landmark in landmarks:
-        x = int(landmark.x * image.shape[1])
-        y = int(landmark.y * image.shape[0])
-        cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
+def get_landmark_positions(face_landmarks, image_shape):
+    h, w = image_shape[:2]
+    # Indexes for left eye, right eye, nose tip, left ear, right ear, mouth left, mouth right
+    landmark_idxs = [33, 263, 1, 234, 454, 61, 291]
+    return np.array([(face_landmarks.landmark[i].x * w, face_landmarks.landmark[i].y * h, face_landmarks.landmark[i].z * w) for i in landmark_idxs])
 
 
-def compute_orientation(landmarks, image_shape):
-    nose_tip = landmarks[4]
-    left_eye = landmarks[130]
-    right_eye = landmarks[359]
-    
-    points = np.array([(landmark.x * image_shape[1], landmark.y * image_shape[0]) for landmark in [nose_tip, left_eye, right_eye]])
-    
-    nose_to_left_eye = points[1] - points[0]
-    nose_to_right_eye = points[2] - points[0]
-    
-    angle = np.degrees(np.arctan2(nose_to_right_eye[1] - nose_to_left_eye[1], nose_to_right_eye[0] - nose_to_left_eye[0]))
-    
-    return abs(angle) < 10
+def construct_rotation_matrix(landmarks):
+    # Define vectors
+    eye_line = landmarks[1] - landmarks[0]
+    ear_line = landmarks[3] - landmarks[4]
+    mouth_line = landmarks[5] - landmarks[6]
+    nose_vector = landmarks[2] - (landmarks[0] + landmarks[1]) / 2
+
+    # Normalizing vectors
+    eye_line = eye_line / np.linalg.norm(eye_line)
+    ear_line = ear_line / np.linalg.norm(ear_line)
+    mouth_line = mouth_line / np.linalg.norm(mouth_line)
+    nose_vector = nose_vector / np.linalg.norm(nose_vector)
+
+    x_axis = ear_line  # Roll
+    y_axis = np.cross(ear_line, nose_vector)
+    y_axis = y_axis / np.linalg.norm(y_axis)  # Pitch
+    z_axis = np.cross(x_axis, y_axis)  # Yaw
+
+    # Combine axes to form the rotation matrix
+    rotation_matrix = np.array([x_axis, y_axis, z_axis]).T
+    return rotation_matrix
 
 
+def estimate_euler_angles(rotation_matrix):
+    # Convert rotation matrix to Euler angles
+    euler_angles = transforms3d.euler.mat2euler(rotation_matrix, 'sxyz')
+    return euler_angles
+
+
+def is_looking_straight(euler_angles_deg):
+    pitch_offset = -43.21761588418377
+    yaw_offset = 3.6571934381692266
+    roll_offset = 179.63434348738102
+
+    adjusted_roll = euler_angles_deg[2] - \
+        360 if euler_angles_deg[2] > 180 else euler_angles_deg[2]
+
+    adjusted_pitch = euler_angles_deg[0] - pitch_offset
+    adjusted_yaw = euler_angles_deg[1] - yaw_offset
+    adjusted_roll = adjusted_roll - roll_offset
+
+    if adjusted_roll < -180:
+        adjusted_roll += 360
+    elif adjusted_roll > 180:
+        adjusted_roll -= 360
+
+    pitch_threshold = 20
+    yaw_threshold = 20
+    roll_threshold = 20
+
+    is_straight = (
+        abs(adjusted_pitch) < pitch_threshold and
+        abs(adjusted_yaw) < yaw_threshold and
+        abs(adjusted_roll) < roll_threshold
+    )
+    return is_straight
+
+
+# Capture video from webcam
 cap = cv2.VideoCapture(0)
 
-while cap.isOpened():
+while True:
     success, image = cap.read()
     if not success:
-        print("Ignoring empty camera frame.")
-        continue
+        break
 
     image = cv2.flip(image, 1)
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     results = face_mesh.process(image_rgb)
-    
+
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
-            draw_landmarks(image, face_landmarks.landmark)
-            
-            looking_straight = compute_orientation(face_landmarks.landmark, image.shape)
-            print(looking_straight)  # True or False based on face orientation.
-            
+            landmarks = get_landmark_positions(face_landmarks, image.shape)
+            rotation_matrix = construct_rotation_matrix(landmarks)
+            euler_angles = estimate_euler_angles(rotation_matrix)
+            euler_angles_deg = np.degrees(euler_angles)  # Convert to degrees
+
+            looking_straight = is_looking_straight(euler_angles_deg)
+
             if not looking_straight:
                 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                 image = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
-    cv2.imshow('MediaPipe Face Mesh', image)
+            # print("Looking straight:", looking_straight)
 
-    if cv2.waitKey(5) & 0xFF == 27:  # Press 'ESC' to exit.
+    # Display the image
+    cv2.imshow('Face Orientation', image)
+    if cv2.waitKey(5) & 0xFF == ord('q'):
         break
 
 cap.release()
