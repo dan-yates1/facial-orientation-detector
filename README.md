@@ -1,6 +1,6 @@
-# AI Imagery and Video Analysis Project
+# The Flash Pack - Interview Task
 
-This project explores the intersection of Artificial Intelligence (AI) with imagery and video analysis, focusing on applications such as enhanced realism in computer-generated imagery (CGI), real-time video editing, deepfake detection, and extracting customer insights from visual data.
+A real-time facial orientation detector using MediaPipe and OpenCV that assesses if a person is looking directly at the camera by analyzing 3D facial landmarks and Euler angles. It calibrates to individual posture and camera setup, outputting the face's orientation status live.
 
 ## Getting Started
 
@@ -13,6 +13,7 @@ What things you need to install the software and how to install them:
 - Python 3.9
 - OpenCV
 - Mediapipe
+- transforms3d
 
 #### Setup
 
