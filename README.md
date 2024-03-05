@@ -6,9 +6,9 @@ A real-time facial orientation detector using MediaPipe and OpenCV that assesses
 
 Here are some screenshots demonstrating the app in action:
 
-![Facial Orientation Detection](https://imgur.com/WBKKSFE "Looking Straight")
+![Imgur](https://imgur.com/WBKKSFE "Looking Straight")
 
-![App Interface](https://imgur.com/9w1r1XG "Not Looking Straight")
+![Imgur](https://imgur.com/WBKKSFE "Not Looking Straight")
 
 ## Getting Started
 
