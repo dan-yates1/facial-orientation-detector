@@ -10,6 +10,10 @@ face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False,
                                   min_detection_confidence=0.5,
                                   min_tracking_confidence=0.5)
 
+mp_drawing = mp.solutions.drawing_utils
+drawing_spec = mp_drawing.DrawingSpec(
+    color=(128, 0, 128), thickness=2, circle_radius=1)
+
 
 def get_landmark_positions(face_landmarks, image_shape):
     h, w = image_shape[:2]
@@ -84,6 +88,7 @@ while True:
     if not success:
         break
 
+    # Flip for selfie view
     image = cv2.flip(image, 1)
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -98,10 +103,16 @@ while True:
 
             looking_straight = is_looking_straight(euler_angles_deg)
 
-            cv2.putText(image, 
-            'Looking straight: {}'.format(looking_straight), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255) if is_looking_straight else (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.putText(image,
+                        'Looking straight: {}'.format(looking_straight), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255) if is_looking_straight else (0, 0, 255), 2, cv2.LINE_AA)
 
             cv2.imshow('Face Orientation', image)
+
+        mp_drawing.draw_landmarks(image=image,
+                                  landmark_list=face_landmarks,
+                                  connections=mp_face_mesh.FACEMESH_CONTOURS,
+                                  landmark_drawing_spec=drawing_spec,
+                                  connection_drawing_spec=drawing_spec)
 
     # Display the image
     cv2.imshow('Face Orientation', image)

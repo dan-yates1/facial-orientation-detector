@@ -2,6 +2,14 @@
 
 A real-time facial orientation detector using MediaPipe and OpenCV that assesses if a person is looking directly at the camera by analyzing 3D facial landmarks and Euler angles. It calibrates to individual posture and camera setup, outputting the face's orientation status live.
 
+## Screenshots
+
+Here are some screenshots demonstrating the app in action:
+
+![Facial Orientation Detection](https://imgur.com/WBKKSFE "Looking Straight")
+
+![App Interface](https://imgur.com/9w1r1XG "Not Looking Straight")
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -19,22 +27,22 @@ What things you need to install the software and how to install them:
 
 1. **Create and Activate a Virtual Environment (Optional but recommended)**
 
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-    ```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
 
 2. **Install Dependencies**
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 3. **Run Main**
 
-    ```bash
-    python main.py
-    ```
+   ```bash
+   python main.py
+   ```
 
 ## Built With
 
