@@ -49,3 +49,8 @@ What things you need to install the software and how to install them:
 - [OpenCV](https://opencv.org/) - The computer vision library used
 - [MediaPipe](https://google.github.io/mediapipe/) - Framework for building multimodal applied machine learning pipelines
 - [Transforms3D](https://matthew-brett.github.io/transforms3d/) - Python library for 3D coordinate transformations
+
+## Acknowledgements
+
+- [Real-Time Head Pose Estimation FaceMesh with MediaPipe and OpenCV: A Comprehensive Guide](https://medium.com/@jaykumaran2217/real-time-head-pose-estimation-facemesh-with-mediapipe-and-opencv-a-comprehensive-guide-b63a2f40b7c6) - Used code for drawing coordinates
+- [Python Face Detection and Face Mesh (python OpenCV & MediaPipe package)](https://www.youtube.com/watch?v=yvXPKfil1hY) - Support for setting up the project
