@@ -52,6 +52,7 @@ def estimate_euler_angles(rotation_matrix):
 
 
 def is_looking_straight(euler_angles_deg):
+    # Adjust for camera offset
     pitch_offset = -43.21761588418377
     yaw_offset = 3.6571934381692266
     roll_offset = 179.63434348738102
@@ -103,9 +104,12 @@ while True:
 
             looking_straight = is_looking_straight(euler_angles_deg)
 
-            cv2.putText(image,"pitch: " + str(np.round(euler_angles_deg[0],2)),(400,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2)
-            cv2.putText(image,"yaw: "+ str(np.round(euler_angles_deg[1],2)),(400,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2)
-            cv2.putText(image,"roll: "+ str(np.round(euler_angles_deg[2], 2)), (400, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2)
+            cv2.putText(image, "pitch: " + str(np.round(
+                euler_angles_deg[0], 2)), (400, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+            cv2.putText(image, "yaw: " + str(np.round(
+                euler_angles_deg[1], 2)), (400, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+            cv2.putText(image, "roll: " + str(np.round(
+                euler_angles_deg[2], 2)), (400, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
             cv2.putText(image,
                         'Looking straight: {}'.format(looking_straight), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255) if is_looking_straight else (0, 0, 255), 2, cv2.LINE_AA)
