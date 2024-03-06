@@ -25,20 +25,27 @@ What things you need to install the software and how to install them:
 
 #### Setup
 
-1. **Create and Activate a Virtual Environment (Optional but recommended)**
+1. **Clone the Repository**
+
+    ```bash
+    git clone https://github.com/dan-yates1/flash-pack-task
+    cd flash-pack-task
+    ```
+
+2. **Create and Activate a Virtual Environment (Optional but recommended)**
 
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
    ```
 
-2. **Install Dependencies**
+3. **Install Dependencies**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Run Main**
+4. **Run Main**
 
    ```bash
    python main.py
