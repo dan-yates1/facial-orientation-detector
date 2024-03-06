@@ -20,8 +20,8 @@ What things you need to install the software and how to install them:
 
 - Python 3.9
 - OpenCV
-- Mediapipe
-- transforms3d
+- MediaPipe
+- Transforms3d
 
 #### Setup
 
